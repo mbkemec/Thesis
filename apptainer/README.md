@@ -162,3 +162,128 @@ The following were successfully validated:
 6. The simulation could be submitted and completed successfully through Slurm on a compute node.
 
 This provides a solid foundation for organizing the workflow more cleanly and, later on, for investigating more advanced setups such as SMP tuning or MPI-based multi-node execution.
+
+
+# NAMD with Apptainer on CNAF HPC (Single Node)
+
+## Objective
+
+The goal of this work is to run NAMD on the HPC cluster using Apptainer containers on a single node.
+
+Previously, multi-node runs with OpenMPI were failing, so the focus here is to first establish a stable single-node workflow using a container-based setup.
+
+## Context
+
+- HPC system: CNAF
+- Scheduler: Slurm
+- Container runtime: Apptainer (already installed on the system)
+- NAMD version: 3.0.2 multicore (prebuilt binary)
+
+The work is based on the ApoA1 example system provided with NAMD.
+
+- Also Apptainer is available system-wide and can be used directly without loading any module.
+
+## Selecting the NAMD Version
+
+Several different NAMD installations were available, including:
+
+- NAMD 2 and NAMD 3
+- MPI-based builds
+- SMP builds
+- manually compiled versions
+- prebuilt binary distributions
+
+Since previous attempts with MPI resulted in errors (especially in multi-node runs), I decided to avoid MPI for now and focus on a simpler and more stable setup.
+
+For this reason, I selected the prebuilt NAMD 3.0.2 multicore version. This version does not require MPI and is designed to run on a single node using multiple CPU cores.
+
+The selected directory was:
+
+/home/k/kemec/namd3/NAMD_3.0.2_Linux-x86_64-multicore
+
+This version already contained the `namd3` executable and all required runtime files, making it suitable for containerization without additional compilation steps.
+
+Conclusion: The multicore (non-MPI) NAMD 3.0.2 version was chosen as the base for the container in order to ensure a stable single-node workflow.
+
+## Preparing the Test System (ApoA1)
+
+To test the workflow, I used the ApoA1 example.
+
+Instead of working directly in the original example directory, I created a separate run directory and copied only the required input files. This was done to keep the original files unchanged and to have a clean working environment.
+
+The following files were used:
+
+- apoa1.namd
+- apoa1.pdb
+- apoa1.psf
+- parameter files
+
+The input file uses relative paths, so it is important to run NAMD from the same directory where these files are located.
+
+Conclusion: A clean and isolated working directory was prepared for running the ApoA1 test.
+
+
+## Building the Apptainer Container
+
+To run NAMD in a controlled and reproducible environment, I created an Apptainer container.
+
+Instead of compiling NAMD inside the container, I used the prebuilt multicore NAMD directory and included it directly in the container.
+
+A simple Apptainer definition file was created for image. The NAMD directory was copied into the container and placed under a standard location.
+
+After preparing the definition file, the container image was built as a `.sif` file.
+
+This produced a portable container that includes the NAMD executable and its runtime environment.
+
+Conclusion: A working Apptainer image containing NAMD 3.0.2 multicore was successfully created.
+
+
+## Binding the Working Directory
+
+In order to run the simulation inside the container, the input files stored on the host system must be accessible from within the container.
+
+By default, the container has its own isolated filesystem, so the host working directory needs to be explicitly bound into the container environment.
+
+For this purpose, the run directory containing the ApoA1 input files was mounted into the container at runtime. This allowed NAMD to read the input files and write output files directly to the host filesystem.
+
+It was also necessary to run NAMD from the correct working directory inside the container, since the input file uses relative paths.
+
+Conclusion: The host run directory was successfully bound into the container, enabling proper input/output handling.
+
+## Running NAMD Inside the Container
+
+After binding the working directory, I executed NAMD inside the container to verify that the full workflow was functional.
+
+The simulation was started from the bound working directory to ensure that all input files referenced with relative paths could be accessed correctly.
+
+NAMD began running normally and started printing energy values, indicating that the simulation was progressing as expected.
+
+This confirmed that the container, input files, and bind configuration were all working together correctly.
+
+Conclusion: The ApoA1 test simulation successfully started and ran inside the Apptainer container.
+
+## SLURM Job
+
+I prepared a Slurm job script. This script defines the required computational resources, such as the number of CPUs and runtime limits.
+
+The job was configured to use a single node with multiple CPU cores, matching the multicore version of NAMD.
+
+The container was executed inside the job script, and the working directory was bound in the same way as in the interactive test.
+
+After submitting the job using `sbatch`, the simulation was assigned to a compute node and started running successfully.
+
+Conclusion: The containerized NAMD simulation was successfully executed on a compute node using Slurm.
+
+## Final Run and Output Verification
+
+After preparing a clean workflow and updating the input configuration, the final simulation was executed using a Slurm job on a single compute node with 12 CPU cores.
+
+The number of simulation steps was increased to 5000, and trajectory output was enabled to generate a DCD file for visualization and analysis.
+
+The job completed successfully without errors. NAMD reached the final step and terminated normally, indicating a stable execution.
+
+The trajectory file confirms that the simulation produced time-dependent data, and the presence of all output files indicates that the run was completed correctly.
+
+Performance information was also printed in the output, showing the simulation speed and resource usage.
+
+Conclusion: The full workflow — from container setup to HPC execution — was successfully completed, and the simulation produced valid output files including trajectory data.
