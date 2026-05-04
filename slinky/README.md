@@ -295,6 +295,4 @@ This distinction is important because:
 
 - It reflects real-world infrastructure setups  
 - It is not fully solved by current tools  
-- It represents a potential research contribution  
 
-This makes it directly relevant for our thesis work.
