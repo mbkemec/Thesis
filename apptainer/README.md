@@ -31,7 +31,7 @@ For this first container test, the safest choice was the **prebuilt NAMD 3.0.2 m
 
 The selected runtime directory was:
 
-`/home/k/kemec/namd3/NAMD_3.0.2_Linux-x86_64-multicore`
+`$HOME/namd3/NAMD_3.0.2_Linux-x86_64-multicore`
 
 **Conclusion:** The prebuilt multicore NAMD package was selected as the base for the container.
 
@@ -172,13 +172,6 @@ The goal of this work is to run NAMD on the HPC cluster using Apptainer containe
 
 Previously, multi-node runs with OpenMPI were failing, so the focus here is to first establish a stable single-node workflow using a container-based setup.
 
-## Context
-
-- HPC system: CNAF
-- Scheduler: Slurm
-- Container runtime: Apptainer (already installed on the system)
-- NAMD version: 3.0.2 multicore (prebuilt binary)
-
 The work is based on the ApoA1 example system provided with NAMD.
 
 - Also Apptainer is available system-wide and can be used directly without loading any module.
@@ -199,7 +192,7 @@ For this reason, I selected the prebuilt NAMD 3.0.2 multicore version. This vers
 
 The selected directory was:
 
-/home/k/kemec/namd3/NAMD_3.0.2_Linux-x86_64-multicore
+$HOME/namd3/NAMD_3.0.2_Linux-x86_64-multicore
 
 This version already contained the `namd3` executable and all required runtime files, making it suitable for containerization without additional compilation steps.
 

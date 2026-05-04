@@ -160,7 +160,7 @@ sbatch apoa1.job
 Check queue:
 
 ```bash
-squeue -u kemec
+squeue -u <user>
 ```
 
 ---
@@ -660,7 +660,7 @@ These had to be corrected.
 Final content:
 
 ```
-TCLDIR=/home/k/kemec/namd3_smp/NAMD_3.0.2_Source/tcl-threaded
+TCLDIR=$HOME/namd3_smp/NAMD_3.0.2_Source/tcl-threaded
 TCLINCL=-I$(TCLDIR)/include
 TCLLIB=-L$(TCLDIR)/lib -ltcl8.5 -ldl -lpthread
 TCLFLAGS=-DNAMD_TCL
@@ -672,7 +672,7 @@ TCL=$(TCLINCL) $(TCLFLAGS)
 Final content:
 
 ```
-FFTDIR=/home/k/kemec/namd3_smp/NAMD_3.0.2_Source/fftw
+FFTDIR=$HOME/namd3_smp/NAMD_3.0.2_Source/fftw
 FFTINCL=-I$(FFTDIR)/include
 FFTLIB=-L$(FFTDIR)/lib -lsrfftw -lsfftw
 FFTFLAGS=-DNAMD_FFTW
@@ -684,7 +684,7 @@ FFT=$(FFTINCL) $(FFTFLAGS)
 The `CHARMBASE` line was corrected to:
 
 ```
-CHARMBASE = /home/k/kemec/namd3_smp/NAMD_3.0.2_Source/charm-8.0.0
+CHARMBASE = $HOME/namd3_smp/NAMD_3.0.2_Source/charm-8.0.0
 ```
 
 ---
@@ -694,11 +694,11 @@ CHARMBASE = /home/k/kemec/namd3_smp/NAMD_3.0.2_Source/charm-8.0.0
 Checks used:
 
 ```bash
-ls /home/k/kemec/namd3_smp/NAMD_3.0.2_Source/tcl-threaded/include/tcl.h
-ls /home/k/kemec/namd3_smp/NAMD_3.0.2_Source/tcl-threaded/lib
-ls /home/k/kemec/namd3_smp/NAMD_3.0.2_Source/fftw/include
-ls /home/k/kemec/namd3_smp/NAMD_3.0.2_Source/fftw/lib
-ls -d /home/k/kemec/namd3_smp/NAMD_3.0.2_Source/charm-8.0.0/mpi-linux-x86_64-smp
+ls $HOME/namd3_smp/NAMD_3.0.2_Source/tcl-threaded/include/tcl.h
+ls $HOME/namd3_smp/NAMD_3.0.2_Source/tcl-threaded/lib
+ls $HOME/namd3_smp/NAMD_3.0.2_Source/fftw/include
+ls $HOME/namd3_smp/NAMD_3.0.2_Source/fftw/lib
+ls -d $HOME/namd3_smp/NAMD_3.0.2_Source/charm-8.0.0/mpi-linux-x86_64-smp
 ```
 
 All required files were present.
