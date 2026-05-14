@@ -1,0 +1,52 @@
+#!/bin/bash
+#SBATCH --job-name=stmv_apptainer_mpi
+#SBATCH --time=00:40:00
+#SBATCH --cpus-per-task=1
+#SBATCH --exclusive
+#SBATCH --output=logs/%x_%j.out
+
+CASE=$1
+
+if [ -z "$CASE" ]; then
+  echo "Usage: sbatch -N <nodes> --ntasks-per-node=<ppn> --ntasks=<total> run_stmv_apptainer_mpi.job <case_name>"
+  exit 1
+fi
+
+WORKDIR="/path/to/stmv"
+HPCX_HOME="/path/to/hpcx"
+NAMD_SIF="/path/to/namd_mpi_container.sif"
+
+cd "$WORKDIR" || exit 1
+mkdir -p logs
+
+echo "CASE=$CASE"
+echo "SLURM_JOB_NODELIST=$SLURM_JOB_NODELIST"
+echo "SLURM_NNODES=$SLURM_NNODES"
+echo "SLURM_NTASKS=$SLURM_NTASKS"
+echo "SLURM_TASKS_PER_NODE=$SLURM_TASKS_PER_NODE"
+echo "Started at: $(date)"
+
+echo "Running on nodes:"
+srun hostname | sort
+
+export PATH="${HPCX_HOME}/ompi/bin:$PATH"
+export LD_LIBRARY_PATH="${HPCX_HOME}/ompi/lib:${HPCX_HOME}/ucx/lib:${LD_LIBRARY_PATH:-}"
+export UCX_WARN_UNUSED_ENV_VARS=n
+
+unset LD_PRELOAD
+
+mpirun --bind-to core \
+  apptainer exec \
+  -B "${HPCX_HOME}:${HPCX_HOME}" \
+  --env LD_LIBRARY_PATH="${HPCX_HOME}/ompi/lib:${HPCX_HOME}/ucx/lib" \
+  "$NAMD_SIF" \
+  /opt/namd/namd3 stmv.namd \
+  > "logs/${CASE}.log" 2>&1
+
+# The host MPI/UCX runtime is bind-mounted into the container
+# This LD_LIBRARY_PATH must match the MPI runtime used to launch the job
+
+rc=$?
+echo "Finished with exit code $rc"
+echo "Finished at: $(date)"
+exit $rc

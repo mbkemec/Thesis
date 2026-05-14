@@ -1,0 +1,44 @@
+#!/bin/bash
+#SBATCH --job-name=stmv_gpu
+#SBATCH --time=00:40:00
+#SBATCH --cpus-per-task=1
+#SBATCH --output=logs/%x_%j.out
+
+CASE=$1
+DEVICES=$2
+
+if [ -z "$CASE" ] || [ -z "$DEVICES" ]; then
+  echo "Usage: sbatch -N 1 --ntasks=<cpus> --gres=gpu:<gpus> run_stmv_cuda_single_node.job <case_name> <devices>"
+  echo "Example: sbatch -N 1 --ntasks=32 --gres=gpu:2 run_stmv_cuda_single_node.job gpu2_32cpu 0,1"
+  exit 1
+fi
+
+WORKDIR="/path/to/stmv"
+NAMD_GPU="/path/to/NAMD_3.0.2_Linux-x86_64-verbs-smp-CUDA/namd3"
+
+cd "$WORKDIR" || exit 1
+mkdir -p logs
+
+echo "CASE=$CASE"
+echo "DEVICES=$DEVICES"
+echo "SLURM_JOB_NODELIST=$SLURM_JOB_NODELIST"
+echo "SLURM_NNODES=$SLURM_NNODES"
+echo "SLURM_NTASKS=$SLURM_NTASKS"
+echo "SLURM_TASKS_PER_NODE=$SLURM_TASKS_PER_NODE"
+echo "CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES"
+echo "Started at: $(date)"
+
+echo "Running on nodes:"
+srun hostname | sort
+
+echo "GPU CHECK"
+nvidia-smi
+
+echo "RUN"
+"$NAMD_GPU" +p${SLURM_NTASKS} +setcpuaffinity +devices "$DEVICES" stmv.namd \
+  > "logs/${CASE}.log" 2>&1
+
+rc=$?
+echo "Finished with exit code $rc"
+echo "Finished at: $(date)"
+exit $rc

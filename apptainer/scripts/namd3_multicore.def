@@ -1,0 +1,23 @@
+Bootstrap: docker
+From: rockylinux:9
+
+# Your local NAMD runtime
+%files
+    /path/to/NAMD_3.0.2_Linux-x86_64-multicore /opt/namd
+
+%post
+    mkdir -p /work
+    chmod -R 755 /opt/namd
+    chmod 755 /work
+
+%environment
+    export NAMD_HOME=/opt/namd
+    export PATH=/opt/namd:$PATH
+    export LC_ALL=C
+
+%runscript
+    exec /opt/namd/namd3 "$@"
+
+%labels
+    Author MSc Thesis Project
+    Application NAMD3-multicore

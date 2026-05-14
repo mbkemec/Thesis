@@ -1,0 +1,40 @@
+#!/bin/bash
+#SBATCH --job-name=apoa1_mpi
+#SBATCH --time=00:40:00
+#SBATCH --cpus-per-task=1
+#SBATCH --exclusive
+#SBATCH --output=logs/%x_%j.out
+
+CASE=$1
+
+if [ -z "$CASE" ]; then
+  echo "Usage: sbatch -N <nodes> --ntasks-per-node=<ppn> --ntasks=<total> run_apoa1_mpi_multinode.sbatch <case_name>"
+  exit 1
+fi
+
+NAMD_BIN="/path/to/namd3"
+WORKDIR="/path/to/apoa1"
+
+cd "$WORKDIR" || exit 1
+mkdir -p logs
+
+echo "CASE=$CASE"
+echo "SLURM_JOB_NODELIST=$SLURM_JOB_NODELIST"
+echo "SLURM_NNODES=$SLURM_NNODES"
+echo "SLURM_NTASKS=$SLURM_NTASKS"
+echo "SLURM_TASKS_PER_NODE=$SLURM_TASKS_PER_NODE"
+echo "Started at: $(date)"
+
+echo "Running on nodes:"
+srun hostname | sort
+
+export UCX_WARN_UNUSED_ENV_VARS=n
+
+mpirun --bind-to core \
+  "$NAMD_BIN" \
+  apoa1.namd > "logs/${CASE}.log" 2>&1
+
+rc=$?
+echo "Finished with exit code $rc"
+echo "Finished at: $(date)"
+exit $rc

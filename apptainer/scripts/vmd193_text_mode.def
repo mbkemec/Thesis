@@ -1,0 +1,78 @@
+Bootstrap: docker
+From: centos:7
+
+%files
+    vmd-1.9.3.bin.LINUXAMD64.text.tar.gz /root/vmd-1.9.3.bin.LINUXAMD64.text.tar.gz
+
+%post
+    # CentOS 7 is EOL: switch repos from mirrorlist to Vault
+    sed -i 's/^mirrorlist=/#mirrorlist=/g' /etc/yum.repos.d/CentOS-Base.repo
+    sed -i 's|^#baseurl=http://mirror.centos.org/centos/\$releasever|baseurl=https://vault.centos.org/centos/7.9.2009|g' /etc/yum.repos.d/CentOS-Base.repo
+    sed -i 's|^#baseurl=http://mirror.centos.org/\$contentdir/\$releasever|baseurl=https://vault.centos.org/centos/7.9.2009|g' /etc/yum.repos.d/CentOS-Base.repo
+    yum clean all
+    yum makecache || true
+
+    yum -y install \
+        tar gzip \
+        bash tcsh which findutils procps-ng hostname \
+        glibc libstdc++ \
+        perl python less \
+        tcl expat
+    yum clean all
+
+    mkdir -p /opt
+    cd /opt
+    tar --no-same-owner --no-same-permissions -xzf /root/vmd-1.9.3.bin.LINUXAMD64.text.tar.gz
+    mv /opt/vmd-1.9.3 /opt/vmd
+
+    # Main binary and helper tools
+    ln -sf /opt/vmd/LINUXAMD64/vmd_LINUXAMD64 /opt/vmd/vmd_LINUXAMD64
+    [ -f /opt/vmd/lib/stride/stride_LINUXAMD64 ] && ln -sf /opt/vmd/lib/stride/stride_LINUXAMD64 /opt/vmd/stride_LINUXAMD64 || true
+    [ -f /opt/vmd/lib/tachyon/tachyon_LINUXAMD64 ] && ln -sf /opt/vmd/lib/tachyon/tachyon_LINUXAMD64 /opt/vmd/tachyon_LINUXAMD64 || true
+    [ -f /opt/vmd/lib/surf/surf_LINUXAMD64 ] && ln -sf /opt/vmd/lib/surf/surf_LINUXAMD64 /opt/vmd/surf_LINUXAMD64 || true
+
+    # Data files expected at root
+    [ -f /opt/vmd/data/vmd_completion.dat ] && ln -sf /opt/vmd/data/vmd_completion.dat /opt/vmd/vmd_completion.dat || true
+    [ -f /opt/vmd/data/.vmdrc ] && ln -sf /opt/vmd/data/.vmdrc /opt/vmd/.vmdrc || true
+    [ -f /opt/vmd/data/.vmdsensors ] && ln -sf /opt/vmd/data/.vmdsensors /opt/vmd/.vmdsensors || true
+
+    # Fix Tcl lookup path: VMD searches under /opt/vmd/scripts/* but Tcl is under /opt/vmd/lib/scripts/tcl8.5
+    mkdir -p /opt/vmd/scripts
+    rm -rf /opt/vmd/scripts/tcl /opt/vmd/scripts/tcl8.5
+    ln -s /opt/vmd/lib/scripts/tcl8.5 /opt/vmd/scripts/tcl
+    ln -s /opt/vmd/lib/scripts/tcl8.5 /opt/vmd/scripts/tcl8.5
+
+    # Headless patch: disable Biocore/web startup code
+    if [ -f /opt/vmd/scripts/vmd/vmdinit.tcl ]; then
+        sed -i '/biocore\.tcl/s/^/# disabled for headless container: /' /opt/vmd/scripts/vmd/vmdinit.tcl || true
+        sed -i '/check_biocore/s/^/# disabled for headless container: /' /opt/vmd/scripts/vmd/vmdinit.tcl || true
+    fi
+
+    cat > /usr/local/bin/vmd << 'EOF'
+#!/bin/sh
+unset LD_PRELOAD
+export VMDDIR=/opt/vmd
+export MASTERVMDDIR=/opt/vmd
+export defaultvmddir=/opt/vmd
+export vmdbasename=vmd
+export TCL_LIBRARY=/opt/vmd/lib/scripts/tcl8.5
+exec /opt/vmd/bin/vmd.sh "$@"
+EOF
+    chmod +x /usr/local/bin/vmd
+
+%environment
+    unset LD_PRELOAD
+    export VMDDIR=/opt/vmd
+    export MASTERVMDDIR=/opt/vmd
+    export defaultvmddir=/opt/vmd
+    export vmdbasename=vmd
+    export TCL_LIBRARY=/opt/vmd/lib/scripts/tcl8.5
+    export PATH=/usr/local/bin:/opt/vmd/bin:$PATH
+
+%runscript
+    exec /usr/local/bin/vmd "$@"
+
+%labels
+    Author MSc Thesis Project
+    Application VMD-1.9.3-text-mode
+
