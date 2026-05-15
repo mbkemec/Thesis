@@ -28,7 +28,7 @@ The NAMD workflows provided a realistic computational biology workload for inves
 namd/
 ├── README.md
 ├── scripts/
-├── benchmarks/
+├── performance_tests/
 └── figures/
 ```
 
@@ -179,7 +179,7 @@ The experiments included:
 Performance plots and execution summaries are provided in:
 
 ```text
-benchmarks/
+performance_tests/
 figures/
 ```
 
