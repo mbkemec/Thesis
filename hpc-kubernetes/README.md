@@ -65,8 +65,17 @@ hpc-kubernetes/
 ├── job_path.png
 ├── project_architecture.png
 └── scripts/
+```
 
 # Scripts
+
+| Script                                                           | Description                     |
+| ---------------------------------------------------------------- | ------------------------------- |
+| [`run_hpc_namd_pipeline.py`](./scripts/run_hpc_namd_pipeline.py) | Main orchestration entry point  |
+| [`config.py`](./scripts/config.py)                               | Centralized configuration       |
+| [`hpc_client.py`](./scripts/hpc_client.py)                       | SSH ProxyJump communication     |
+| [`slurm_template.py`](./scripts/slurm_template.py)               | Dynamic Slurm script generation |
+
 
 The `scripts/` directory contains the orchestration and automation components used during workflow testing between the Kubernetes-oriented environment and the Slurm-based HPC infrastructure.
 
@@ -78,9 +87,7 @@ The workflow was later modularized into multiple Python components in order to i
 
 The primary execution script is:
 
-```text
-run_hpc_namd_pipeline.py
-````
+- [`run_hpc_namd_pipeline.py`](./scripts/run_hpc_namd_pipeline.py)
 
 This is the main orchestration script intended to be executed by the user.
 
@@ -106,7 +113,9 @@ python3 run_hpc_namd_pipeline.py
 
 ## Script Components
 
-### `config.py`
+### Configuration
+
+- [`config.py`](./scripts/config.py)
 
 Contains centralized configuration values used across the workflow.
 
@@ -124,7 +133,9 @@ This file allows the workflow configuration to be modified without changing the 
 
 ---
 
-### `hpc_client.py`
+### Remote HPC Communication
+
+- [`hpc_client.py`](./scripts/hpc_client.py)
 
 Handles SSH-based remote communication with the HPC environment.
 
@@ -140,7 +151,9 @@ This component is responsible for connecting to the HPC login node through the b
 
 ---
 
-### `slurm_template.py`
+### Slurm Template Generation
+
+- [`slurm_template.py`](./scripts/slurm_template.py)
 
 Dynamically generates:
 
@@ -175,11 +188,7 @@ The orchestration workflow expects this script to generate temporary object-stor
 
 An earlier shell-based implementation was also developed during the initial stages of testing.
 
-Example:
-
-```text
-test_namd_cuda.sh
-```
+- [`submit_namd_cuda_workflow.sh`](./scripts/submit_namd_cuda_workflow.sh)
 
 This version contained the complete workflow inside a single Bash script.
 
