@@ -113,10 +113,10 @@ sbatch mpi_pi_example.job
 ## Example Output
 
 ```text
-Rank 0/4 running on hpc-f01-05-19.cr.cnaf.infn.it
-Rank 1/4 running on hpc-f01-05-19.cr.cnaf.infn.it
-Rank 2/4 running on hpc-f01-05-19.cr.cnaf.infn.it
-Rank 3/4 running on hpc-f01-05-19.cr.cnaf.infn.it
+Rank 0/4 running on xxx
+Rank 1/4 running on xxx
+Rank 2/4 running on xxx
+Rank 3/4 running on xxx
 
 pi = 3.14159265359022
 ```
