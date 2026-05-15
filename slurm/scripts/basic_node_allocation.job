@@ -1,0 +1,20 @@
+#!/bin/bash
+#SBATCH --job-name=basic_node_allocation
+#SBATCH --nodes=1
+#SBATCH --ntasks=4
+#SBATCH --cpus-per-task=1
+#SBATCH --time=00:05:00
+#SBATCH --output=basic_node_allocation_%j.out
+#SBATCH --error=basic_node_allocation_%j.err
+
+echo "Job started:"
+date
+
+echo "Allocated nodes:"
+scontrol show hostnames "$SLURM_JOB_NODELIST"
+
+echo "Running tasks:"
+srun hostname | sort
+
+echo "Job finished:"
+date
