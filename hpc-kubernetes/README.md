@@ -65,3 +65,145 @@ hpc-kubernetes/
 ├── job_path.png
 ├── project_architecture.png
 └── scripts/
+
+# Scripts
+
+The `scripts/` directory contains the orchestration and automation components used during workflow testing between the Kubernetes-oriented environment and the Slurm-based HPC infrastructure.
+
+The workflow was later modularized into multiple Python components in order to improve readability, maintainability, and debugging.
+
+---
+
+## Main Entry Point
+
+The primary execution script is:
+
+```text
+run_hpc_namd_pipeline.py
+````
+
+This is the main orchestration script intended to be executed by the user.
+
+The script handles:
+
+* OIDC agent initialization
+* temporary credential generation
+* SSH communication setup
+* remote workflow generation
+* Slurm job submission
+* remote job monitoring
+* output collection orchestration
+
+The other Python files are helper modules imported by this script and are not intended to be executed directly.
+
+Example execution:
+
+```bash
+python3 run_hpc_namd_pipeline.py
+```
+
+---
+
+## Script Components
+
+### `config.py`
+
+Contains centralized configuration values used across the workflow.
+
+This includes:
+
+* bridge VM information
+* HPC login node configuration
+* object storage endpoint configuration
+* dataset definitions
+* GPU/CPU resource settings
+* container image paths
+* working directory definitions
+
+This file allows the workflow configuration to be modified without changing the main orchestration logic.
+
+---
+
+### `hpc_client.py`
+
+Handles SSH-based remote communication with the HPC environment.
+
+The module provides:
+
+* SSH ProxyJump support
+* remote shell execution
+* retry handling
+* connection timeout handling
+* remote workflow execution
+
+This component is responsible for connecting to the HPC login node through the bridge VM.
+
+---
+
+### `slurm_template.py`
+
+Dynamically generates:
+
+* Slurm job scripts
+* remote execution scripts
+
+The generated scripts automate:
+
+* dataset download from object storage
+* temporary credential loading
+* Apptainer execution
+* GPU-enabled NAMD execution
+* output collection
+* metadata generation
+* automatic upload of results/logs
+
+The generated Slurm script is submitted remotely through the HPC login node.
+
+---
+
+### `login_sts.py`
+
+Used for temporary credential generation through an external OIDC/STS workflow.
+
+This component was developed separately and is therefore not included in this public repository.
+
+The orchestration workflow expects this script to generate temporary object-storage credentials before remote job submission.
+
+---
+
+## Shell-Based Workflow
+
+An earlier shell-based implementation was also developed during the initial stages of testing.
+
+Example:
+
+```text
+test_namd_cuda.sh
+```
+
+This version contained the complete workflow inside a single Bash script.
+
+The later Python-based modular implementation replaced this approach in order to improve:
+
+* readability
+* maintainability
+* debugging
+* workflow modularity
+
+---
+
+## Workflow Behavior
+
+The orchestration pipeline performs the following steps automatically:
+
+1. generate temporary credentials
+2. establish SSH communication through the bridge VM
+3. connect to the HPC login node
+4. generate a Slurm job script dynamically
+5. submit the job with `sbatch`
+6. wait for job completion
+7. execute the workload inside an Apptainer container
+8. upload logs, outputs, and metadata to object storage
+
+The workflow was validated using CUDA-enabled NAMD molecular dynamics workloads on GPU-enabled HPC nodes.
+
