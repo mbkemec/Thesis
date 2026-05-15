@@ -187,6 +187,16 @@ in order to better evaluate multi-GPU scaling behavior under more computationall
 
 Some STMV tests were also executed inside Apptainer containers.
 
+| Configuration | Native Runtime Infiniband (s) | Apptainer Runtime (s) |
+|---|---:|---:|
+| 16 CPU | 1453.67 | 1616.55 |
+| 32 CPU | 747.19 | 847.18 |
+| 64 CPU | 441.98 | 524.75 |
+| 128 CPU | 252.59 | 319.85 |
+| 148 CPU | 221.88 | 276.53 |
+| 172 CPU | 197.68 | 247.89 |
+| 192 CPU | 190.30 | 241.89 |
+
 The containerized runs showed:
 
 - slightly higher wall clock times
