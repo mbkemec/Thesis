@@ -1,179 +1,161 @@
 # MSc Thesis Repository
 
-This repository contains the practical work, notes, scripts, and reports developed during an MSc thesis focused on integrating Kubernetes, Slurm-based HPC systems, containerized scientific applications, and S3-compatible storage for scalable bioinformatics workflows.
+This repository contains the practical work, experimental workflows, scripts, performance analyses, and infrastructure components developed during an MSc thesis focused on integrating:
 
-The work is organized into several technical areas, each representing a different part of the overall thesis workflow.
+- Kubernetes-based orchestration
+- Slurm-managed HPC systems
+- containerized scientific applications
+- MPI and GPU-enabled workloads
+- S3-compatible object storage
+- secure distributed workflow execution
 
----
+The project investigates how cloud-native orchestration and HPC infrastructures can be combined to support scalable and reproducible computational biology workflows.
 
-## 1. Kubernetes Environment
-
-A Kubernetes environment was prepared using an RKE2-based cluster composed of one server node and multiple worker nodes.
-
-This environment was used as the cloud-side orchestration layer of the thesis. Basic deployment workflows were tested, including services, deployments, ingress configuration, and communication between Kubernetes components.
-
-The Kubernetes side represents the entry point from which workloads can eventually be submitted toward external HPC resources.
-
----
-
-## 2. Slurm HPC Environment
-
-The HPC side of the project is based on a Slurm-managed cluster.
-
-Several Slurm workflows were tested, including:
-
-- single-node job submission
-- multi-node job submission
-- CPU-based jobs
-- GPU-based jobs
-- MPI-based execution
-- job monitoring with Slurm commands
-- analysis of job states, logs, and resource allocation
-
-These tests were used to understand how scientific workloads can be executed, monitored, and automated on an HPC cluster.
+The work was developed using HPC infrastructure at INFN-CNAF.
 
 ---
 
-## 3. MPI and Distributed Execution Tests
+# Project Architecture
 
-MPI-based workloads were tested to evaluate distributed execution across HPC nodes.
+The overall workflow architecture is shown below.
 
-Initial tests included simple distributed programs, followed by larger scientific workloads. These experiments helped identify the differences between local execution, single-node MPI execution, and multi-node MPI execution.
-
-Particular attention was given to MPI environment configuration, runtime libraries, network transport behavior, and multi-node execution stability.
+![Project Architecture](./hpc-kubernetes/project_architecture.png)
 
 ---
 
-## 4. NAMD Molecular Dynamics Benchmarks
+# Workflow Path
 
-NAMD was used as the main scientific application for HPC benchmarking.
+The practical execution workflow used throughout the project is summarized below.
 
-The benchmarking work included:
-
-- running ApoA1 molecular dynamics simulations
-- running STMV molecular dynamics simulations
-- comparing CPU-only and GPU-accelerated configurations
-- testing different CPU/GPU balances
-- collecting wall-clock time and performance metrics
-- generating speedup and efficiency plots
-- comparing single-node and multi-node behavior
-
-The NAMD experiments provided a realistic bioinformatics/HPC workload for evaluating performance, scalability, and execution behavior on the cluster.
-
----
-
-## 5. GPU-Based NAMD Experiments
-
-GPU-accelerated NAMD runs were performed using CUDA-enabled nodes.
-
-Different CPU and GPU combinations were tested to understand the balance between CPU resources and GPU acceleration. The results showed that increasing GPU count alone is not always sufficient, since CPU-GPU balance and job configuration strongly affect performance.
-
-These experiments were used to identify efficient configurations for molecular dynamics workloads on the available HPC infrastructure.
-
----
-
-## 6. Visualization with VMD and FFmpeg
-
-Simulation outputs were processed and visualized using VMD and FFmpeg.
-
-Trajectory files produced by NAMD were rendered into molecular visualization frames using VMD. These frames were then converted into video format using FFmpeg.
-
-This part of the work demonstrates a complete post-processing workflow after simulation execution, from raw trajectory output to visual molecular animation.
-
----
-
-## 7. Apptainer-Based Containerization
-
-Apptainer was used to containerize scientific tools for execution on the HPC cluster.
-
-Containerized workflows included:
-
-- VMD execution inside an Apptainer container
-- FFmpeg execution inside a separate container
-- binding input/output directories into containers
-- running rendering and video generation workflows through Slurm jobs
-
-This allowed scientific software to be executed in a more reproducible and portable way within the HPC environment.
-
----
-
-## 8. MinIO and S3-Compatible Storage
-
-MinIO was used as an S3-compatible storage layer for communication between systems.
-
-The storage tests included:
-
-- accessing MinIO from the HPC login environment
-- accessing MinIO from Slurm compute jobs
-- uploading and downloading files through MinIO
-- testing MinIO client and AWS CLI based access
-- validating object storage as a shared data exchange layer
-
-These tests showed that MinIO can be used as an intermediate storage system between Kubernetes-side workflows and HPC-side execution.
-
----
-
-## 9. Kubernetes to HPC Workflow
-
-An end-to-end workflow was developed to connect the Kubernetes-side environment with the HPC cluster.
+![Workflow Path](./hpc-kubernetes/job_path.png)
 
 The workflow includes:
 
-- initiating the process from a cloud/Kubernetes-side environment
-- connecting to the HPC login environment through an intermediate access path
-- dynamically generating Slurm job scripts
-- submitting jobs to the HPC scheduler
-- passing temporary storage credentials to the job environment
-- allowing compute jobs to access S3-compatible storage
-- retrieving or uploading results after job execution
-
-This represents one of the central integration points of the thesis.
+1. initiating execution from a cloud-side environment
+2. secure access through an intermediate bridge layer
+3. Slurm-based job submission on the HPC cluster
+4. execution of scientific workloads
+5. interaction with S3-compatible object storage
+6. retrieval of logs, outputs, and metadata
 
 ---
 
-## 10. OIDC and Temporary Credentials
-
-OIDC-based authentication was tested for generating temporary credentials for S3-compatible storage access.
-
-Instead of relying on long-term static credentials, the workflow was adapted to use short-lived credentials for MinIO access. These credentials were passed to the HPC job environment so that compute nodes could interact with object storage during job execution.
-
-This approach improves the security and flexibility of the data exchange workflow.
-
----
-
-## Current Status
-
-At the current stage, the thesis work includes:
-
-- a working Kubernetes-side test environment
-- Slurm job submission and monitoring workflows
-- CPU and GPU NAMD benchmark results
-- VMD and FFmpeg post-processing workflows
-- Apptainer-based container execution on HPC
-- MinIO access from both login and compute environments
-- an end-to-end Kubernetes-to-HPC submission prototype
-- OIDC-based temporary credential handling for storage access
-- ongoing research on deeper Slurm-Kubernetes integration models
-
----
-
-## Thesis Focus
-
-The overall focus of the thesis is to explore how cloud-native orchestration, HPC scheduling, containerized scientific software, and object storage can be combined to support scalable and reproducible computational biology workflows.
-
-The practical workflow connects multiple components into a single pipeline:
+# Repository Structure
 
 ```text
-Kubernetes / Cloud-side environment
-        ↓
-Bridge / access layer
-        ↓
-Slurm HPC cluster
-        ↓
-Scientific workload execution
-        ↓
-S3-compatible object storage
-        ↓
-Result collection and post-processing
+Thesis/
+├── README.md
+├── apptainer/
+├── hpc-kubernetes/
+├── namd/
+└── slurm/
 ```
 
+---
+
+# Repository Components
+
+## [`namd/`](./namd)
+
+Contains molecular dynamics workflows and performance experiments performed with NAMD.
+
+This section includes:
+
+- ApoA1 simulations
+- STMV simulations
+- CPU scaling experiments
+- GPU scaling experiments
+- MPI execution tests
+- performance analysis
+- wall clock, speedup, and efficiency measurements
+- plotting and analysis scripts
+
+Additional details and simulations results are documented inside:
+
+- [`namd/README.md`](./namd/README.md)
+- [`namd/performance_tests/README.md`](./namd/performance_tests/README.md)
+
+---
+
+## [`hpc-kubernetes/`](./hpc-kubernetes)
+
+Contains the orchestration and workflow integration layer developed between cloud-side environments and the HPC cluster.
+
+This section includes:
+
+- SSH ProxyJump workflows
+- dynamic Slurm script generation
+- MinIO-based data transfer
+- OIDC-based temporary credential passing
+- automated HPC job submission
+- workflow orchestration scripts
+
+The orchestration scripts demonstrate how scientific workloads can be initiated from external environments and executed on Slurm-managed HPC infrastructure.
+
+Additional details are documented inside:
+
+- [`hpc-kubernetes/README.md`](./hpc-kubernetes/README.md)
+
+---
+
+## [`apptainer/`](./apptainer)
+
+Contains Apptainer-based container workflows developed for scientific software execution on HPC systems.
+
+This section includes:
+
+- containerized NAMD workflows
+- containerized VMD workflows
+- FFmpeg integration
+- GPU-enabled container execution
+- Slurm-integrated container execution
+- reproducible runtime environments
+
+Additional details are documented inside:
+
+- [`apptainer/README.md`](./apptainer/README.md)
+
+---
+
+## [`slurm/`](./slurm)
+
+Contains Slurm-related experiments, job scripts, and MPI execution examples.
+
+This section includes:
+
+- basic Slurm job submission
+- MPI-based execution examples
+- CPU resource allocation experiments
+- simple distributed MPI workloads
+- Slurm execution monitoring
+
+Additional details are documented inside:
+
+- [`slurm/README.md`](./slurm/README.md)
+
+---
+
+Currently contains:
+
+- working Slurm execution workflows
+- MPI-based distributed execution experiments
+- CPU and GPU NAMD tests
+- Apptainer-based scientific workflows
+- MinIO-integrated HPC execution
+- OIDC-based temporary credential using
+- Kubernetes-to-HPC orchestration prototypes
+- automated workflow submission scripts
+- performance analysis and visualization tools
+
+---
+
+# Thesis Focus
+
+The overall thesis investigates how cloud-native orchestration systems and HPC infrastructures can be combined to support scalable scientific workflows while maintaining:
+
+- reproducibility
+- portability
+- automation
+- distributed execution capability
+- secure data transfer
+- efficient resource utilization
